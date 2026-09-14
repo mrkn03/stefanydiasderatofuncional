@@ -3,7 +3,8 @@ import { hasAdminSession } from "@/lib/api";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ preload }) => {
+    if (preload) return;
     const authenticated = await hasAdminSession();
     if (!authenticated) throw redirect({ to: "/auth" });
   },
