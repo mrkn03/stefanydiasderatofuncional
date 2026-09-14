@@ -17,7 +17,7 @@ export type CreateAppointmentInput = Pick<
   "patientName" | "phone" | "procedure" | "date" | "time"
 > & { notes?: string };
 
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, "") ?? "";
+const apiBaseUrl = (import.meta.env["VITE_API_BASE_URL"] as string | undefined)?.replace(/\/$/, "") ?? "";
 const demoAppointmentsKey = "stefany-demo-appointments";
 const demoSessionKey = "stefany-demo-admin";
 
