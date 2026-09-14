@@ -9,3 +9,8 @@
 - [x] Página /agendamento com horários disponíveis
 - [x] Área /admin protegida por login para gerenciar agendamentos
 - [x] Metadados SEO por rota (pt-BR)
+
+## Aguardando dados reais
+- [ ] Substituir o link genérico pelo número oficial do WhatsApp
+- [ ] Adicionar o perfil oficial do Instagram
+- [ ] Criar o primeiro acesso profissional no painel do Lovable Cloud

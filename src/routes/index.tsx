@@ -34,7 +34,6 @@ function Home() {
       <SiteHeader />
       <main>
         <section className="relative mx-auto max-w-6xl px-5 pb-20 pt-12 sm:px-6 sm:pb-28 sm:pt-20">
-          <div className="pointer-events-none absolute -right-24 top-20 -z-10 h-80 w-80 rounded-full bg-rose/20 blur-3xl" />
           <div className="grid items-center gap-12 lg:grid-cols-12">
             <div className="lg:col-span-7">
               <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-rosedeep">Fisioterapia dermatofuncional · Vitória/ES</p>
