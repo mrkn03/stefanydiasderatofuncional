@@ -1,28 +1,32 @@
-# Dermato Funcional UFES
+# Site Dra. Stefany Dias
 
-Estou criando uma landing page para minha namorada, onde ela esta começando a trabalhar, ela é fisioterapeuta formada pela UFES (Universidade Federal do Espirito Santo) e finalizando pós-graduaçao em Fisioterapia Dermatofuncional, quero criar um site para que ela possa se divulgar e tambem agendar procedimentos, quais seriam as elhores opcoes?
+Frontend institucional e de agendamento desenvolvido com React, TanStack Start, TypeScript e Tailwind CSS.
 
-A base de cor seria basicamente desse documento de cuidados com a pele
+## Executar localmente
 
-This project was built with [Lovable](https://lovable.dev).
+```bash
+bun install
+bun run dev
+```
 
-**Live app**: https://stefanydiasderatofuncional.lovable.app
+Sem configuração adicional, a agenda funciona em **modo demonstrativo**: os dados ficam apenas no `localStorage` do navegador e não são enviados para nenhum servidor.
 
-## Build with Lovable
+## Conectar à API .NET
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/ebf38ff8-1cd8-4703-80d3-469464ff8756).
+Crie um arquivo `.env.local` na sua máquina:
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+```env
+VITE_API_BASE_URL=https://localhost:7001
+```
 
-## Development
+Reinicie o frontend. A partir daí, todas as ações da agenda usam a API configurada. Não coloque senhas, chaves privadas ou tokens em variáveis `VITE_*`, pois elas ficam públicas no navegador.
 
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+O contrato completo da API, regras de negócio, segurança, banco, exemplos e roteiro de implementação estão em [`docs/BACKEND-DOTNET.md`](docs/BACKEND-DOTNET.md).
 
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+## Comandos
+
+```bash
+bun run dev      # desenvolvimento
+bun run build    # compilação de produção
+bun run lint     # análise estática
 ```
