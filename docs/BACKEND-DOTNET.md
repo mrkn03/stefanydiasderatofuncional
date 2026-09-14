@@ -5,12 +5,14 @@ Este documento descreve o backend necessário para ativar o agendamento e a áre
 ## 1. Funcionalidades esperadas
 
 ### Área pública
+
 1. Consultar horários ocupados de uma data.
 2. Enviar uma solicitação de agendamento.
 3. Impedir dois agendamentos ativos no mesmo dia e horário.
 4. Criar toda nova solicitação com status `pendente`.
 
 ### Área profissional
+
 1. Autenticar a profissional por e-mail e senha.
 2. Verificar se a sessão atual continua válida.
 3. Encerrar a sessão.

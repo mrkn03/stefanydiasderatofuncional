@@ -17,7 +17,8 @@ export type CreateAppointmentInput = Pick<
   "patientName" | "phone" | "procedure" | "date" | "time"
 > & { notes?: string };
 
-const apiBaseUrl = (import.meta.env["VITE_API_BASE_URL"] as string | undefined)?.replace(/\/$/, "") ?? "";
+const apiBaseUrl =
+  (import.meta.env["VITE_API_BASE_URL"] as string | undefined)?.replace(/\/$/, "") ?? "";
 const demoAppointmentsKey = "stefany-demo-appointments";
 const demoSessionKey = "stefany-demo-admin";
 
@@ -40,8 +41,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => null) as { message?: string } | null;
-    throw new ApiError(body?.message ?? "Não foi possível concluir a solicitação.", response.status);
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    throw new ApiError(
+      body?.message ?? "Não foi possível concluir a solicitação.",
+      response.status,
+    );
   }
 
   if (response.status === 204) return undefined as T;
@@ -76,7 +80,10 @@ export async function getOccupiedSlots(date: string): Promise<string[]> {
 
 export async function createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
   if (!isDemoMode) {
-    return request<Appointment>("/api/appointments", { method: "POST", body: JSON.stringify(input) });
+    return request<Appointment>("/api/appointments", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
   }
   const appointments = readDemoAppointments();
   const unavailable = appointments.some(
@@ -96,7 +103,10 @@ export async function createAppointment(input: CreateAppointmentInput): Promise<
 
 export async function login(email: string, password: string): Promise<void> {
   if (!isDemoMode) {
-    await request<void>("/api/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+    await request<void>("/api/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
     return;
   }
   if (!email || !password) throw new ApiError("Informe e-mail e senha.", 400);
@@ -121,10 +131,15 @@ export async function hasAdminSession(): Promise<boolean> {
 
 export async function listAppointments(): Promise<Appointment[]> {
   if (!isDemoMode) return request<Appointment[]>("/api/admin/appointments");
-  return readDemoAppointments().sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+  return readDemoAppointments().sort((a, b) =>
+    `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`),
+  );
 }
 
-export async function updateAppointmentStatus(id: string, status: AppointmentStatus): Promise<void> {
+export async function updateAppointmentStatus(
+  id: string,
+  status: AppointmentStatus,
+): Promise<void> {
   if (!isDemoMode) {
     await request<void>(`/api/admin/appointments/${encodeURIComponent(id)}/status`, {
       method: "PATCH",
@@ -132,5 +147,7 @@ export async function updateAppointmentStatus(id: string, status: AppointmentSta
     });
     return;
   }
-  writeDemoAppointments(readDemoAppointments().map((item) => item.id === id ? { ...item, status } : item));
+  writeDemoAppointments(
+    readDemoAppointments().map((item) => (item.id === id ? { ...item, status } : item)),
+  );
 }

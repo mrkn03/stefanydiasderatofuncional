@@ -3,5 +3,59 @@ import { Camera, MessageSquareQuote } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/page-layout";
 
-export const Route = createFileRoute("/resultados")({head:()=>({meta:[{title:"Resultados | Dra. Stefany Dias"},{name:"description",content:"Acompanhe resultados e depoimentos dos atendimentos da Dra. Stefany Dias."},{property:"og:title",content:"Resultados | Dra. Stefany Dias"},{property:"og:description",content:"Resultados reais com acompanhamento individualizado."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:Results});
-function Results(){return <PageLayout eyebrow="Resultados" title="Resultados construídos com tempo, cuidado e acompanhamento." intro="Cada organismo responde de uma forma. A evolução é registrada e acompanhada durante todo o tratamento."><section className="mx-auto max-w-6xl px-5 py-20 sm:px-6"><div className="grid gap-5 md:grid-cols-2"><div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-rose/30 bg-mist/50 p-8 text-center"><Camera className="size-8 text-rosedeep"/><h2 className="mt-5 font-display text-2xl">Antes e depois</h2><p className="mt-3 max-w-sm text-sm leading-relaxed text-inksoft">Novos registros serão adicionados com autorização das pacientes e identificação do protocolo realizado.</p></div><div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-rose/30 bg-milk p-8 text-center"><MessageSquareQuote className="size-8 text-rosedeep"/><h2 className="mt-5 font-display text-2xl">Depoimentos</h2><p className="mt-3 max-w-sm text-sm leading-relaxed text-inksoft">Em breve, este espaço reunirá experiências reais de quem viveu esse cuidado.</p></div></div><div className="mt-12 text-center"><Button asChild className="rounded-full bg-rosedeep text-primary-foreground hover:bg-rosedeep/90"><Link to="/agendamento">Começar meu cuidado</Link></Button></div></section></PageLayout>}
+export const Route = createFileRoute("/resultados")({
+  head: () => ({
+    meta: [
+      { title: "Resultados | Dra. Stefany Dias" },
+      {
+        name: "description",
+        content: "Acompanhe resultados e depoimentos dos atendimentos da Dra. Stefany Dias.",
+      },
+      { property: "og:title", content: "Resultados | Dra. Stefany Dias" },
+      {
+        property: "og:description",
+        content: "Resultados reais com acompanhamento individualizado.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: Results,
+});
+function Results() {
+  return (
+    <PageLayout
+      eyebrow="Resultados"
+      title="Resultados construídos com tempo, cuidado e acompanhamento."
+      intro="Cada organismo responde de uma forma. A evolução é registrada e acompanhada durante todo o tratamento."
+    >
+      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-6">
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-rose/30 bg-mist/50 p-8 text-center">
+            <Camera className="size-8 text-rosedeep" />
+            <h2 className="mt-5 font-display text-2xl">Antes e depois</h2>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-inksoft">
+              Novos registros serão adicionados com autorização das pacientes e identificação do
+              protocolo realizado.
+            </p>
+          </div>
+          <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-rose/30 bg-milk p-8 text-center">
+            <MessageSquareQuote className="size-8 text-rosedeep" />
+            <h2 className="mt-5 font-display text-2xl">Depoimentos</h2>
+            <p className="mt-3 max-w-sm text-sm leading-relaxed text-inksoft">
+              Em breve, este espaço reunirá experiências reais de quem viveu esse cuidado.
+            </p>
+          </div>
+        </div>
+        <div className="mt-12 text-center">
+          <Button
+            asChild
+            className="rounded-full bg-rosedeep text-primary-foreground hover:bg-rosedeep/90"
+          >
+            <Link to="/agendamento">Começar meu cuidado</Link>
+          </Button>
+        </div>
+      </section>
+    </PageLayout>
+  );
+}

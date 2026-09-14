@@ -4,6 +4,72 @@ import { Button } from "@/components/ui/button";
 import { PageLayout } from "@/components/page-layout";
 import portraitAsset from "@/assets/stefany-sobre.jpg.asset.json";
 
-export const Route = createFileRoute("/sobre")({head:()=>({meta:[{title:"Sobre | Dra. Stefany Dias"},{name:"description",content:"Conheça a formação e a abordagem de cuidado da fisioterapeuta Stefany Dias, formada pela UFES."},{property:"og:title",content:"Sobre | Dra. Stefany Dias"},{property:"og:description",content:"Formação, ciência e cuidado humano em fisioterapia dermatofuncional."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:About});
-const values: Array<[LucideIcon, string]> = [[GraduationCap,"Formação UFES"],[Microscope,"Prática baseada em ciência"],[Heart,"Cuidado individualizado"]];
-function About(){return <PageLayout eyebrow="Sobre mim" title="Cuidar da pele é também cuidar de como você se sente." intro="Minha prática une conhecimento científico, atenção aos detalhes e uma escuta cuidadosa para construir resultados seguros e naturais."><section className="mx-auto max-w-6xl px-5 py-20 sm:px-6"><div className="grid items-center gap-12 lg:grid-cols-12"><img src={portraitAsset.url} alt="Dra. Stefany Dias" className="aspect-square w-full rounded-xl object-cover lg:col-span-5" /><div className="lg:col-span-7 lg:pl-8"><h2 className="font-display text-3xl">Dra. Stefany Dias</h2><p className="mt-5 text-base leading-relaxed text-inksoft">Fisioterapeuta formada pela Universidade Federal do Espírito Santo (UFES) e finalizando a pós-graduação em Fisioterapia Dermatofuncional.</p><p className="mt-4 text-base leading-relaxed text-inksoft">Meu propósito é oferecer um atendimento responsável e acolhedor. Por isso, cada paciente é avaliada de forma individual antes da definição do protocolo.</p><div className="mt-9 grid gap-4 sm:grid-cols-3">{values.map(([Icon,text])=><div key={text} className="rounded-lg bg-mist p-5"><Icon className="size-5 text-rosedeep"/><p className="mt-3 text-sm font-medium">{text}</p></div>)}</div><Button asChild className="mt-9 rounded-full bg-rosedeep text-primary-foreground hover:bg-rosedeep/90"><Link to="/agendamento">Agendar avaliação</Link></Button></div></div></section></PageLayout>}
+export const Route = createFileRoute("/sobre")({
+  head: () => ({
+    meta: [
+      { title: "Sobre | Dra. Stefany Dias" },
+      {
+        name: "description",
+        content:
+          "Conheça a formação e a abordagem de cuidado da fisioterapeuta Stefany Dias, formada pela UFES.",
+      },
+      { property: "og:title", content: "Sobre | Dra. Stefany Dias" },
+      {
+        property: "og:description",
+        content: "Formação, ciência e cuidado humano em fisioterapia dermatofuncional.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: About,
+});
+const values: Array<[LucideIcon, string]> = [
+  [GraduationCap, "Formação UFES"],
+  [Microscope, "Prática baseada em ciência"],
+  [Heart, "Cuidado individualizado"],
+];
+function About() {
+  return (
+    <PageLayout
+      eyebrow="Sobre mim"
+      title="Cuidar da pele é também cuidar de como você se sente."
+      intro="Minha prática une conhecimento científico, atenção aos detalhes e uma escuta cuidadosa para construir resultados seguros e naturais."
+    >
+      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-6">
+        <div className="grid items-center gap-12 lg:grid-cols-12">
+          <img
+            src={portraitAsset.url}
+            alt="Dra. Stefany Dias"
+            className="aspect-square w-full rounded-xl object-cover lg:col-span-5"
+          />
+          <div className="lg:col-span-7 lg:pl-8">
+            <h2 className="font-display text-3xl">Dra. Stefany Dias</h2>
+            <p className="mt-5 text-base leading-relaxed text-inksoft">
+              Fisioterapeuta formada pela Universidade Federal do Espírito Santo (UFES) e
+              finalizando a pós-graduação em Fisioterapia Dermatofuncional.
+            </p>
+            <p className="mt-4 text-base leading-relaxed text-inksoft">
+              Meu propósito é oferecer um atendimento responsável e acolhedor. Por isso, cada
+              paciente é avaliada de forma individual antes da definição do protocolo.
+            </p>
+            <div className="mt-9 grid gap-4 sm:grid-cols-3">
+              {values.map(([Icon, text]) => (
+                <div key={text} className="rounded-lg bg-mist p-5">
+                  <Icon className="size-5 text-rosedeep" />
+                  <p className="mt-3 text-sm font-medium">{text}</p>
+                </div>
+              ))}
+            </div>
+            <Button
+              asChild
+              className="mt-9 rounded-full bg-rosedeep text-primary-foreground hover:bg-rosedeep/90"
+            >
+              <Link to="/agendamento">Agendar avaliação</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+    </PageLayout>
+  );
+}

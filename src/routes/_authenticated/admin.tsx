@@ -3,8 +3,132 @@ import { useEffect, useState } from "react";
 import { CalendarDays, LogOut, Phone } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { isDemoMode, listAppointments, logout, updateAppointmentStatus, type Appointment, type AppointmentStatus } from "@/lib/api";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  isDemoMode,
+  listAppointments,
+  logout,
+  updateAppointmentStatus,
+  type Appointment,
+  type AppointmentStatus,
+} from "@/lib/api";
 
-export const Route = createFileRoute("/_authenticated/admin")({head:()=>({meta:[{title:"Agenda | Dra. Stefany Dias"},{name:"description",content:"Gestão privada de agendamentos."},{property:"og:title",content:"Agenda | Dra. Stefany Dias"},{property:"og:description",content:"Gestão privada de agendamentos."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary"}]}),component:Admin});
-function Admin(){const router=useRouter();const[items,setItems]=useState<Appointment[]>([]);const[loading,setLoading]=useState(true);async function reload(){try{setItems(await listAppointments())}catch{toast.error("Não foi possível carregar a agenda.")}finally{setLoading(false)}}useEffect(()=>{void reload()},[]);async function change(id:string,status:AppointmentStatus){try{await updateAppointmentStatus(id,status);setItems(v=>v.map(item=>item.id===id?{...item,status}:item));toast.success("Status atualizado.")}catch{toast.error("Não foi possível atualizar.")}}async function leave(){await logout();await router.navigate({to:"/auth"})}return <div className="min-h-screen bg-milk px-5 py-8 text-ink sm:px-6"><header className="mx-auto flex max-w-6xl items-center justify-between"><div><p className="text-[11px] uppercase tracking-[0.25em] text-rosedeep">Área profissional</p><h1 className="mt-2 font-display text-3xl">Agenda</h1></div><Button variant="outline" size="icon" onClick={leave} aria-label="Sair"><LogOut/></Button></header><main className="mx-auto mt-10 max-w-6xl">{isDemoMode&&<div role="status" className="mb-5 rounded-xl border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft"><strong className="font-semibold text-ink">Agenda demonstrativa:</strong> os registros existem somente neste navegador.</div>}{loading?<p className="text-sm text-inksoft">Carregando agenda...</p>:items.length===0?<div className="rounded-xl border border-rose/30 p-10 text-center"><CalendarDays className="mx-auto size-8 text-rosedeep"/><p className="mt-4 text-inksoft">Nenhum agendamento recebido.</p></div>:<div className="grid gap-4">{items.map(item=><article key={item.id} className="rounded-xl border border-rose/30 bg-milk p-6"><div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-semibold text-rosedeep">{new Date(`${item.date}T12:00:00`).toLocaleDateString("pt-BR")} · {item.time.slice(0,5)}</p><h2 className="mt-2 font-display text-xl">{item.patientName}</h2><p className="mt-1 text-sm text-inksoft">{item.procedure}</p><a href={`tel:${item.phone}`} className="mt-3 flex items-center gap-2 text-sm text-rosedeep"><Phone className="size-4"/>{item.phone}</a>{item.notes&&<p className="mt-3 text-sm text-inksoft">{item.notes}</p>}</div><Select value={item.status} onValueChange={value=>change(item.id,value as AppointmentStatus)}><SelectTrigger className="w-full sm:w-40"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="pendente">Pendente</SelectItem><SelectItem value="confirmado">Confirmado</SelectItem><SelectItem value="cancelado">Cancelado</SelectItem></SelectContent></Select></div></article>)}</div>}</main></div>}
+export const Route = createFileRoute("/_authenticated/admin")({
+  head: () => ({
+    meta: [
+      { title: "Agenda | Dra. Stefany Dias" },
+      { name: "description", content: "Gestão privada de agendamentos." },
+      { property: "og:title", content: "Agenda | Dra. Stefany Dias" },
+      { property: "og:description", content: "Gestão privada de agendamentos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: Admin,
+});
+function Admin() {
+  const router = useRouter();
+  const [items, setItems] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
+  async function reload() {
+    try {
+      setItems(await listAppointments());
+    } catch {
+      toast.error("Não foi possível carregar a agenda.");
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    void reload();
+  }, []);
+  async function change(id: string, status: AppointmentStatus) {
+    try {
+      await updateAppointmentStatus(id, status);
+      setItems((v) => v.map((item) => (item.id === id ? { ...item, status } : item)));
+      toast.success("Status atualizado.");
+    } catch {
+      toast.error("Não foi possível atualizar.");
+    }
+  }
+  async function leave() {
+    await logout();
+    await router.navigate({ to: "/auth" });
+  }
+  return (
+    <div className="min-h-screen bg-milk px-5 py-8 text-ink sm:px-6">
+      <header className="mx-auto flex max-w-6xl items-center justify-between">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-rosedeep">Área profissional</p>
+          <h1 className="mt-2 font-display text-3xl">Agenda</h1>
+        </div>
+        <Button variant="outline" size="icon" onClick={leave} aria-label="Sair">
+          <LogOut />
+        </Button>
+      </header>
+      <main className="mx-auto mt-10 max-w-6xl">
+        {isDemoMode && (
+          <div
+            role="status"
+            className="mb-5 rounded-xl border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft"
+          >
+            <strong className="font-semibold text-ink">Agenda demonstrativa:</strong> os registros
+            existem somente neste navegador.
+          </div>
+        )}
+        {loading ? (
+          <p className="text-sm text-inksoft">Carregando agenda...</p>
+        ) : items.length === 0 ? (
+          <div className="rounded-xl border border-rose/30 p-10 text-center">
+            <CalendarDays className="mx-auto size-8 text-rosedeep" />
+            <p className="mt-4 text-inksoft">Nenhum agendamento recebido.</p>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {items.map((item) => (
+              <article key={item.id} className="rounded-xl border border-rose/30 bg-milk p-6">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-rosedeep">
+                      {new Date(`${item.date}T12:00:00`).toLocaleDateString("pt-BR")} ·{" "}
+                      {item.time.slice(0, 5)}
+                    </p>
+                    <h2 className="mt-2 font-display text-xl">{item.patientName}</h2>
+                    <p className="mt-1 text-sm text-inksoft">{item.procedure}</p>
+                    <a
+                      href={`tel:${item.phone}`}
+                      className="mt-3 flex items-center gap-2 text-sm text-rosedeep"
+                    >
+                      <Phone className="size-4" />
+                      {item.phone}
+                    </a>
+                    {item.notes && <p className="mt-3 text-sm text-inksoft">{item.notes}</p>}
+                  </div>
+                  <Select
+                    value={item.status}
+                    onValueChange={(value) => change(item.id, value as AppointmentStatus)}
+                  >
+                    <SelectTrigger className="w-full sm:w-40">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pendente">Pendente</SelectItem>
+                      <SelectItem value="confirmado">Confirmado</SelectItem>
+                      <SelectItem value="cancelado">Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

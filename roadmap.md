@@ -11,6 +11,7 @@
 - [x] Metadados SEO por rota (pt-BR)
 
 ## Aguardando dados reais
+
 - [ ] Substituir o link genérico pelo número oficial do WhatsApp
 - [ ] Adicionar o perfil oficial do Instagram
 - [ ] Configurar `VITE_API_BASE_URL` quando a API .NET estiver disponível
