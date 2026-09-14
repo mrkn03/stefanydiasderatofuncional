@@ -52,24 +52,16 @@ export type Database = {
       }
     }
     Views: {
-      occupied_slots: {
-        Row: {
-          date: string | null
-          time: string | null
-        }
-        Insert: {
-          date?: string | null
-          time?: string | null
-        }
-        Update: {
-          date?: string | null
-          time?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_occupied_slots: {
+        Args: { p_date: string }
+        Returns: {
+          date: string
+          time: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
