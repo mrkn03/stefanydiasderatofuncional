@@ -14,10 +14,59 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      appointments: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          notes: string | null
+          patient_name: string
+          phone: string
+          procedure: string
+          status: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          notes?: string | null
+          patient_name: string
+          phone: string
+          procedure: string
+          status?: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          notes?: string | null
+          patient_name?: string
+          phone?: string
+          procedure?: string
+          status?: string
+          time?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      occupied_slots: {
+        Row: {
+          date: string | null
+          time: string | null
+        }
+        Insert: {
+          date?: string | null
+          time?: string | null
+        }
+        Update: {
+          date?: string | null
+          time?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
