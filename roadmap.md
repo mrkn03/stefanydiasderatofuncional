@@ -10,6 +10,7 @@
 - [x] Documentar o contrato e os passos de implementação do backend em ASP.NET Core
 - [x] Restringir novos agendamentos à avaliação dermatofuncional
 - [x] Adicionar confirmação, reagendamento, cancelamento e evolução clínica na agenda
+- [ ] Adaptar a evolução clínica ao protocolo de avaliação facial enviado nas quatro imagens
 - [x] Metadados SEO por rota (pt-BR)
 
 ## Aguardando dados reais
