@@ -15,6 +15,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  ClinicalEvolutionDetails,
+  ClinicalEvolutionForm,
+  emptyClinicalEvolution,
+} from "@/components/clinical-evolution-form";
+import {
   APPOINTMENT_TIMES,
   createClinicalEvolution,
   getOccupiedSlots,
@@ -44,14 +49,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: Admin,
 });
 
-const emptyEvolution: CreateClinicalEvolutionInput = {
-  complaint: "",
-  assessment: "",
-  conduct: "",
-  response: "",
-  guidance: "",
-};
-
 function Admin() {
   const router = useRouter();
   const [items, setItems] = useState<Appointment[]>([]);
@@ -62,7 +59,7 @@ function Admin() {
   const [newTime, setNewTime] = useState("");
   const [occupied, setOccupied] = useState<string[]>([]);
   const [evolving, setEvolving] = useState<Appointment | null>(null);
-  const [evolution, setEvolution] = useState(emptyEvolution);
+  const [evolution, setEvolution] = useState(emptyClinicalEvolution);
   const [history, setHistory] = useState<ClinicalEvolution[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const minDate = useMemo(() => new Date(Date.now() + 86400000).toISOString().slice(0, 10), []);
@@ -131,7 +128,7 @@ function Admin() {
 
   async function openEvolution(item: Appointment) {
     setEvolving(item);
-    setEvolution(emptyEvolution);
+    setEvolution(emptyClinicalEvolution);
     setHistoryLoading(true);
     try {
       setHistory(await listClinicalEvolutions(item.id));
@@ -149,7 +146,7 @@ function Admin() {
     try {
       const created = await createClinicalEvolution(evolving.id, evolution);
       setHistory((current) => [created, ...current]);
-      setEvolution(emptyEvolution);
+      setEvolution(emptyClinicalEvolution);
       toast.success("Evolução clínica registrada.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Não foi possível salvar a evolução.");
@@ -314,40 +311,17 @@ function Admin() {
       </Dialog>
 
       <Dialog open={Boolean(evolving)} onOpenChange={(open) => !open && setEvolving(null)}>
-        <DialogContent className="max-h-[92vh] overflow-y-auto border-rose/30 bg-milk sm:max-w-2xl">
+        <DialogContent className="max-h-[92vh] overflow-y-auto border-rose/30 bg-milk sm:max-w-5xl">
           <DialogHeader>
             <DialogTitle className="font-display text-2xl text-ink">
               Evolução de {evolving?.patientName}
             </DialogTitle>
             <DialogDescription>
-              Registre a avaliação e a evolução clínica deste atendimento.
+              Preencha o protocolo de avaliação facial e a conduta deste atendimento.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={saveEvolution} className="grid gap-4">
-            {(
-              [
-                ["complaint", "Queixa principal", 2000],
-                ["assessment", "Avaliação", 4000],
-                ["conduct", "Conduta realizada", 4000],
-                ["response", "Resposta do paciente", 2000],
-                ["guidance", "Orientações", 2000],
-              ] as const
-            ).map(([field, label, maxLength]) => (
-              <div key={field}>
-                <Label htmlFor={`evolution-${field}`}>{label}</Label>
-                <Textarea
-                  id={`evolution-${field}`}
-                  required
-                  minLength={2}
-                  maxLength={maxLength}
-                  value={evolution[field]}
-                  onChange={(event) =>
-                    setEvolution((current) => ({ ...current, [field]: event.target.value }))
-                  }
-                  className="mt-2 min-h-20"
-                />
-              </div>
-            ))}
+            <ClinicalEvolutionForm value={evolution} onChange={setEvolution} />
             <DialogFooter>
               <Button type="submit" disabled={busyId === evolving?.id}>
                 Salvar evolução
@@ -367,28 +341,7 @@ function Admin() {
                     <p className="font-semibold text-rosedeep">
                       {new Date(entry.createdAt).toLocaleString("pt-BR")}
                     </p>
-                    <dl className="mt-3 grid gap-2 text-inksoft">
-                      <div>
-                        <dt className="font-semibold text-ink">Queixa</dt>
-                        <dd className="whitespace-pre-wrap">{entry.complaint}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-semibold text-ink">Avaliação</dt>
-                        <dd className="whitespace-pre-wrap">{entry.assessment}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-semibold text-ink">Conduta</dt>
-                        <dd className="whitespace-pre-wrap">{entry.conduct}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-semibold text-ink">Resposta</dt>
-                        <dd className="whitespace-pre-wrap">{entry.response}</dd>
-                      </div>
-                      <div>
-                        <dt className="font-semibold text-ink">Orientações</dt>
-                        <dd className="whitespace-pre-wrap">{entry.guidance}</dd>
-                      </div>
-                    </dl>
+                    <ClinicalEvolutionDetails value={entry} />
                   </article>
                 ))}
               </div>
