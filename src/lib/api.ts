@@ -225,10 +225,12 @@ export async function updateAppointmentStatus(
 }
 
 export async function rescheduleAppointment(id: string, date: string, time: string): Promise<void> {
-  const parsed = z.object({ date: z.string().regex(datePattern), time: z.enum(APPOINTMENT_TIMES) }).safeParse({
-    date,
-    time,
-  });
+  const parsed = z
+    .object({ date: z.string().regex(datePattern), time: z.enum(APPOINTMENT_TIMES) })
+    .safeParse({
+      date,
+      time,
+    });
   if (!parsed.success) throw new ApiError("Escolha uma data e um horário válidos.", 400);
   if (!isDemoMode) {
     await request<void>(`/api/admin/appointments/${encodeURIComponent(id)}/schedule`, {

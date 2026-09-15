@@ -176,8 +176,12 @@ function Admin() {
       </header>
       <main className="mx-auto mt-10 max-w-6xl">
         {isDemoMode && (
-          <div role="status" className="mb-5 rounded-lg border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft">
-            <strong className="font-semibold text-ink">Agenda demonstrativa:</strong> os registros e as evoluções existem somente neste navegador.
+          <div
+            role="status"
+            className="mb-5 rounded-lg border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft"
+          >
+            <strong className="font-semibold text-ink">Agenda demonstrativa:</strong> os registros e
+            as evoluções existem somente neste navegador.
           </div>
         )}
         {loading ? (
@@ -194,11 +198,15 @@ function Admin() {
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
                   <div>
                     <p className="text-xs font-semibold text-rosedeep">
-                      {new Date(`${item.date}T12:00:00`).toLocaleDateString("pt-BR")} · {item.time.slice(0, 5)}
+                      {new Date(`${item.date}T12:00:00`).toLocaleDateString("pt-BR")} ·{" "}
+                      {item.time.slice(0, 5)}
                     </p>
                     <h2 className="mt-2 font-display text-xl">{item.patientName}</h2>
                     <p className="mt-1 text-sm text-inksoft">{item.procedure}</p>
-                    <a href={`tel:${item.phone}`} className="mt-3 flex items-center gap-2 text-sm text-rosedeep">
+                    <a
+                      href={`tel:${item.phone}`}
+                      className="mt-3 flex items-center gap-2 text-sm text-rosedeep"
+                    >
                       <Phone className="size-4" />
                       {item.phone}
                     </a>
@@ -206,14 +214,25 @@ function Admin() {
                   </div>
                   <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-56">
                     <span className="text-xs font-semibold uppercase text-inksoft">
-                      {item.status === "pendente" ? "Pendente" : item.status === "confirmado" ? "Confirmado" : "Cancelado"}
+                      {item.status === "pendente"
+                        ? "Pendente"
+                        : item.status === "confirmado"
+                          ? "Confirmado"
+                          : "Cancelado"}
                     </span>
                     {item.status !== "confirmado" && (
-                      <Button disabled={busyId === item.id} onClick={() => change(item.id, "confirmado")}>
+                      <Button
+                        disabled={busyId === item.id}
+                        onClick={() => change(item.id, "confirmado")}
+                      >
                         <Check /> Confirmar
                       </Button>
                     )}
-                    <Button variant="outline" disabled={busyId === item.id} onClick={() => openReschedule(item)}>
+                    <Button
+                      variant="outline"
+                      disabled={busyId === item.id}
+                      onClick={() => openReschedule(item)}
+                    >
                       <CalendarClock /> Reagendar
                     </Button>
                     {item.status === "confirmado" && (
@@ -222,7 +241,11 @@ function Admin() {
                       </Button>
                     )}
                     {item.status !== "cancelado" && (
-                      <Button variant="ghost" disabled={busyId === item.id} onClick={() => change(item.id, "cancelado")}>
+                      <Button
+                        variant="ghost"
+                        disabled={busyId === item.id}
+                        onClick={() => change(item.id, "cancelado")}
+                      >
                         <X /> Cancelar
                       </Button>
                     )}
@@ -237,19 +260,39 @@ function Admin() {
       <Dialog open={Boolean(rescheduling)} onOpenChange={(open) => !open && setRescheduling(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto border-rose/30 bg-milk sm:max-w-xl">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl text-ink">Reagendar avaliação</DialogTitle>
-            <DialogDescription>Escolha uma nova data e um horário disponível para {rescheduling?.patientName}.</DialogDescription>
+            <DialogTitle className="font-display text-2xl text-ink">
+              Reagendar avaliação
+            </DialogTitle>
+            <DialogDescription>
+              Escolha uma nova data e um horário disponível para {rescheduling?.patientName}.
+            </DialogDescription>
           </DialogHeader>
           <div className="grid gap-5 py-2">
             <div>
               <Label htmlFor="reschedule-date">Nova data</Label>
-              <Input id="reschedule-date" type="date" min={minDate} value={newDate} onChange={(event) => { setNewDate(event.target.value); setNewTime(""); }} className="mt-2" />
+              <Input
+                id="reschedule-date"
+                type="date"
+                min={minDate}
+                value={newDate}
+                onChange={(event) => {
+                  setNewDate(event.target.value);
+                  setNewTime("");
+                }}
+                className="mt-2"
+              />
             </div>
             <div>
               <Label>Novo horário</Label>
               <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
                 {APPOINTMENT_TIMES.map((time) => (
-                  <Button key={time} type="button" variant={newTime === time ? "default" : "outline"} disabled={!newDate || occupied.includes(time)} onClick={() => setNewTime(time)}>
+                  <Button
+                    key={time}
+                    type="button"
+                    variant={newTime === time ? "default" : "outline"}
+                    disabled={!newDate || occupied.includes(time)}
+                    onClick={() => setNewTime(time)}
+                  >
                     {time}
                   </Button>
                 ))}
@@ -257,8 +300,15 @@ function Admin() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRescheduling(null)}>Voltar</Button>
-            <Button disabled={!newDate || !newTime || busyId === rescheduling?.id} onClick={saveReschedule}>Salvar reagendamento</Button>
+            <Button variant="outline" onClick={() => setRescheduling(null)}>
+              Voltar
+            </Button>
+            <Button
+              disabled={!newDate || !newTime || busyId === rescheduling?.id}
+              onClick={saveReschedule}
+            >
+              Salvar reagendamento
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -266,24 +316,42 @@ function Admin() {
       <Dialog open={Boolean(evolving)} onOpenChange={(open) => !open && setEvolving(null)}>
         <DialogContent className="max-h-[92vh] overflow-y-auto border-rose/30 bg-milk sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="font-display text-2xl text-ink">Evolução de {evolving?.patientName}</DialogTitle>
-            <DialogDescription>Registre a avaliação e a evolução clínica deste atendimento.</DialogDescription>
+            <DialogTitle className="font-display text-2xl text-ink">
+              Evolução de {evolving?.patientName}
+            </DialogTitle>
+            <DialogDescription>
+              Registre a avaliação e a evolução clínica deste atendimento.
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={saveEvolution} className="grid gap-4">
-            {([
-              ["complaint", "Queixa principal", 2000],
-              ["assessment", "Avaliação", 4000],
-              ["conduct", "Conduta realizada", 4000],
-              ["response", "Resposta do paciente", 2000],
-              ["guidance", "Orientações", 2000],
-            ] as const).map(([field, label, maxLength]) => (
+            {(
+              [
+                ["complaint", "Queixa principal", 2000],
+                ["assessment", "Avaliação", 4000],
+                ["conduct", "Conduta realizada", 4000],
+                ["response", "Resposta do paciente", 2000],
+                ["guidance", "Orientações", 2000],
+              ] as const
+            ).map(([field, label, maxLength]) => (
               <div key={field}>
                 <Label htmlFor={`evolution-${field}`}>{label}</Label>
-                <Textarea id={`evolution-${field}`} required minLength={2} maxLength={maxLength} value={evolution[field]} onChange={(event) => setEvolution((current) => ({ ...current, [field]: event.target.value }))} className="mt-2 min-h-20" />
+                <Textarea
+                  id={`evolution-${field}`}
+                  required
+                  minLength={2}
+                  maxLength={maxLength}
+                  value={evolution[field]}
+                  onChange={(event) =>
+                    setEvolution((current) => ({ ...current, [field]: event.target.value }))
+                  }
+                  className="mt-2 min-h-20"
+                />
               </div>
             ))}
             <DialogFooter>
-              <Button type="submit" disabled={busyId === evolving?.id}>Salvar evolução</Button>
+              <Button type="submit" disabled={busyId === evolving?.id}>
+                Salvar evolução
+              </Button>
             </DialogFooter>
           </form>
           <section className="mt-4 border-t border-rose/30 pt-5">
@@ -296,13 +364,30 @@ function Admin() {
               <div className="mt-4 grid gap-4">
                 {history.map((entry) => (
                   <article key={entry.id} className="rounded-lg border border-rose/30 p-4 text-sm">
-                    <p className="font-semibold text-rosedeep">{new Date(entry.createdAt).toLocaleString("pt-BR")}</p>
+                    <p className="font-semibold text-rosedeep">
+                      {new Date(entry.createdAt).toLocaleString("pt-BR")}
+                    </p>
                     <dl className="mt-3 grid gap-2 text-inksoft">
-                      <div><dt className="font-semibold text-ink">Queixa</dt><dd className="whitespace-pre-wrap">{entry.complaint}</dd></div>
-                      <div><dt className="font-semibold text-ink">Avaliação</dt><dd className="whitespace-pre-wrap">{entry.assessment}</dd></div>
-                      <div><dt className="font-semibold text-ink">Conduta</dt><dd className="whitespace-pre-wrap">{entry.conduct}</dd></div>
-                      <div><dt className="font-semibold text-ink">Resposta</dt><dd className="whitespace-pre-wrap">{entry.response}</dd></div>
-                      <div><dt className="font-semibold text-ink">Orientações</dt><dd className="whitespace-pre-wrap">{entry.guidance}</dd></div>
+                      <div>
+                        <dt className="font-semibold text-ink">Queixa</dt>
+                        <dd className="whitespace-pre-wrap">{entry.complaint}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-ink">Avaliação</dt>
+                        <dd className="whitespace-pre-wrap">{entry.assessment}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-ink">Conduta</dt>
+                        <dd className="whitespace-pre-wrap">{entry.conduct}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-ink">Resposta</dt>
+                        <dd className="whitespace-pre-wrap">{entry.response}</dd>
+                      </div>
+                      <div>
+                        <dt className="font-semibold text-ink">Orientações</dt>
+                        <dd className="whitespace-pre-wrap">{entry.guidance}</dd>
+                      </div>
                     </dl>
                   </article>
                 ))}
