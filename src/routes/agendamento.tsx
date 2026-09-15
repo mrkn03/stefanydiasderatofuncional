@@ -5,15 +5,14 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { PageLayout } from "@/components/page-layout";
-import { createAppointment, getOccupiedSlots, isDemoMode } from "@/lib/api";
+import {
+  APPOINTMENT_TIMES,
+  createAppointment,
+  DERMATOFUNCTIONAL_EVALUATION,
+  getOccupiedSlots,
+  isDemoMode,
+} from "@/lib/api";
 
 export const Route = createFileRoute("/agendamento")({
   head: () => ({
@@ -22,7 +21,7 @@ export const Route = createFileRoute("/agendamento")({
       {
         name: "description",
         content:
-          "Escolha seu procedimento, data e horário para solicitar uma avaliação com a Dra. Stefany Dias.",
+          "Escolha a data e o horário para solicitar sua avaliação dermatofuncional com a Dra. Stefany Dias.",
       },
       { property: "og:title", content: "Agendamento | Dra. Stefany Dias" },
       {
@@ -35,27 +34,6 @@ export const Route = createFileRoute("/agendamento")({
   }),
   component: Booking,
 });
-const times = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-];
-const procedures = [
-  "Avaliação dermatofuncional",
-  "Limpeza de pele",
-  "Microagulhamento",
-  "Peeling",
-  "Drenagem linfática",
-  "Pós-operatório",
-  "Rejuvenescimento",
-];
 function Booking() {
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -80,7 +58,6 @@ function Booking() {
       await createAppointment({
         patientName: String(f.get("name")),
         phone: String(f.get("phone")),
-        procedure: String(f.get("procedure")),
         date,
         time,
         notes: String(f.get("notes") || ""),
@@ -119,8 +96,8 @@ function Booking() {
   return (
     <PageLayout
       eyebrow="Agendamento"
-      title="Escolha seu melhor momento para se cuidar."
-      intro="Selecione o procedimento, a data e um dos horários disponíveis. A solicitação será confirmada pelo WhatsApp."
+      title="Agende sua avaliação dermatofuncional."
+      intro="Escolha a data e um dos horários disponíveis. Os procedimentos indicados serão definidos individualmente após a avaliação."
     >
       <section className="mx-auto max-w-2xl px-5 py-20 sm:px-6">
         {isDemoMode && (
@@ -162,20 +139,12 @@ function Booking() {
               />
             </div>
           </div>
-          <div>
-            <Label>Procedimento</Label>
-            <Select name="procedure" required>
-              <SelectTrigger className="mt-2 w-full">
-                <SelectValue placeholder="Escolha um procedimento" />
-              </SelectTrigger>
-              <SelectContent>
-                {procedures.map((p) => (
-                  <SelectItem key={p} value={p}>
-                    {p}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="rounded-lg border border-rose/30 bg-mist px-4 py-3">
+            <p className="text-xs font-semibold uppercase text-rosedeep">Atendimento inicial</p>
+            <p className="mt-1 font-medium text-ink">{DERMATOFUNCTIONAL_EVALUATION}</p>
+            <p className="mt-1 text-sm text-inksoft">
+              O plano de tratamento e os procedimentos serão definidos após esta avaliação.
+            </p>
           </div>
           <div>
             <Label htmlFor="date">Data</Label>
@@ -195,7 +164,7 @@ function Booking() {
           <div>
             <Label>Horário</Label>
             <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-5">
-              {times.map((t) => (
+              {APPOINTMENT_TIMES.map((t) => (
                 <Button
                   key={t}
                   type="button"
