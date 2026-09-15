@@ -135,7 +135,7 @@ Protegido pela política `Admin`. Retorna o histórico clínico em ordem decresc
 
 Protegido pela política `Admin`. Aceita múltiplas evoluções por agendamento confirmado:
 
-O corpo JSON segue o DTO `CreateClinicalEvolutionRequest`. Campos de seleção múltipla são arrays de strings; campos não preenchidos são enviados como string vazia ou array vazio.
+O corpo JSON segue diretamente o DTO `ClinicalEvolutionData`. Campos de seleção múltipla são arrays de strings; campos não preenchidos são enviados como string vazia ou array vazio.
 
 Retorna `201 Created` com a evolução criada. Retorne `409 Conflict` se o agendamento não estiver `confirmado` e `404` se ele não existir.
 
@@ -176,8 +176,6 @@ public sealed class ClinicalEvolution
     public required ClinicalEvolutionData Data { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
-
-public sealed record CreateClinicalEvolutionRequest(ClinicalEvolutionData Data);
 
 // Configure como owned/complex type no EF Core, ou mapeie cada propriedade para coluna.
 public sealed record ClinicalEvolutionData(
