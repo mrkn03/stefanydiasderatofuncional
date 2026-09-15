@@ -31,19 +31,23 @@ export const Route = createFileRoute("/")({
 const services = [
   [
     "01",
-    "Limpeza de pele",
-    "Cuidado profundo para desobstruir, equilibrar e renovar o aspecto da pele.",
+    "Microagulhamento",
+    "Estímulo controlado de colágeno indicado para textura, cicatrizes de acne, poros e linhas finas.",
   ],
   [
     "02",
-    "Microagulhamento",
-    "Estímulo de colágeno para textura, cicatrizes de acne, poros e linhas finas.",
+    "Peelings",
+    "Renovação gradual da pele com ativos selecionados após avaliação individual.",
   ],
-  ["03", "Peelings", "Renovação gradual e segura para uniformizar textura, viço e tonalidade."],
+  [
+    "03",
+    "Botox",
+    "Aplicação de toxina botulínica para prevenção e tratamento de linhas de expressão e rugas.",
+  ],
   [
     "04",
-    "Drenagem linfática",
-    "Técnica suave para reduzir edemas, favorecer a circulação e proporcionar leveza.",
+    "Feridas",
+    "Tratamento especializado para cicatrizes e lesões da pele, promovendo a regeneração saudável.",
   ],
   [
     "05",
