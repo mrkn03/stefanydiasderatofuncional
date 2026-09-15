@@ -25,17 +25,17 @@ export const Route = createFileRoute("/servicos")({
 });
 const items = [
   [
-    "Limpeza de pele",
-    "Higienização profunda, extração cuidadosa e finalização adequada às necessidades da sua pele.",
-  ],
-  [
     "Microagulhamento",
     "Estímulo controlado de colágeno indicado para textura, cicatrizes de acne, poros e linhas finas.",
   ],
   ["Peelings", "Renovação gradual da pele com ativos selecionados após avaliação individual."],
   [
-    "Drenagem linfática",
-    "Manobras suaves para favorecer a circulação linfática, reduzir edemas e trazer leveza.",
+    "Botox",
+    "Aplicação de toxina botulínica para prevenção e tratamento de linhas de expressão e rugas.",
+  ],
+  [
+    "Feridas",
+    "Tratamento especializado para cicatrizes e lesões da pele, promovendo a regeneração saudável.",
   ],
   [
     "Pós-operatório",

@@ -16,10 +16,22 @@ export const Route = createFileRoute("/contato")({
   }),
   component: Contact,
 });
-const contacts: Array<[LucideIcon, string, string]> = [
-  [MapPin, "Localização", "Praia do Suá · Vitória/ES"],
-  [Instagram, "Instagram", "Perfil em breve"],
-  [MessageCircle, "WhatsApp", "Atendimento por mensagem"],
+type Contact = [LucideIcon, string, string, string | null];
+
+const contacts: Contact[] = [
+  [
+    MapPin,
+    "Localização",
+    "Praia do Suá · 3º andar sala 302",
+    "https://maps.app.goo.gl/EKackJ81JG2gZdC6A?g_st=iw",
+  ],
+  [
+    Instagram,
+    "Instagram",
+    "@stefanyfisiodermato",
+    "https://www.instagram.com/stefanyfisiodermato/",
+  ],
+  [MessageCircle, "WhatsApp", "Atendimento por mensagem", null],
 ];
 function Contact() {
   return (
@@ -30,13 +42,32 @@ function Contact() {
     >
       <section className="mx-auto max-w-4xl px-5 py-20 sm:px-6">
         <div className="grid gap-5 sm:grid-cols-3">
-          {contacts.map(([Icon, title, text]) => (
-            <div key={title} className="rounded-xl border border-rose/30 bg-milk p-7 text-center">
-              <Icon className="mx-auto size-6 text-rosedeep" />
-              <h2 className="mt-4 font-display text-xl">{title}</h2>
-              <p className="mt-2 text-sm text-inksoft">{text}</p>
-            </div>
-          ))}
+          {contacts.map(([Icon, title, text, href]) => {
+            const className =
+              "rounded-xl border border-rose/30 bg-milk p-7 text-center hover:border-rosedeep/50 hover:bg-mist/50 transition-all duration-300";
+            const content = (
+              <>
+                <Icon className="mx-auto size-6 text-rosedeep" />
+                <h2 className="mt-4 font-display text-xl">{title}</h2>
+                <p className="mt-2 text-sm text-inksoft">{text}</p>
+              </>
+            );
+            return href ? (
+              <a
+                key={title}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={className}
+              >
+                {content}
+              </a>
+            ) : (
+              <div key={title} className={className}>
+                {content}
+              </div>
+            );
+          })}
         </div>
         <div className="mt-10 flex flex-wrap justify-center gap-3">
           <Button
