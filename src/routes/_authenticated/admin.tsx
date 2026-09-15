@@ -4,6 +4,11 @@ import { CalendarClock, CalendarDays, Check, ClipboardPlus, LogOut, Phone, X } f
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
+  ClinicalEvolutionDetails,
+  ClinicalEvolutionForm,
+  emptyClinicalEvolution,
+} from "@/components/clinical-evolution-form";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -13,12 +18,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  ClinicalEvolutionDetails,
-  ClinicalEvolutionForm,
-  emptyClinicalEvolution,
-} from "@/components/clinical-evolution-form";
 import {
   APPOINTMENT_TIMES,
   createClinicalEvolution,

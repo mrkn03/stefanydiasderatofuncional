@@ -129,21 +129,13 @@ Retorna `204 No Content`. Retorne `409 Conflict` quando o novo horário estiver 
 
 ### `GET /api/admin/appointments/{id}/evolutions`
 
-Protegido pela política `Admin`. Retorna o histórico clínico em ordem decrescente de criação. Cada item contém `id`, `appointmentId`, `complaint`, `assessment`, `conduct`, `response`, `guidance` e `createdAt`.
+Protegido pela política `Admin`. Retorna o histórico clínico em ordem decrescente de criação. Cada item contém `id`, `appointmentId`, todos os campos do protocolo descritos abaixo e `createdAt`.
 
 ### `POST /api/admin/appointments/{id}/evolutions`
 
 Protegido pela política `Admin`. Aceita múltiplas evoluções por agendamento confirmado:
 
-```json
-{
-  "complaint": "Queixa principal relatada pela paciente.",
-  "assessment": "Achados da avaliação dermatofuncional.",
-  "conduct": "Conduta realizada no atendimento.",
-  "response": "Resposta observada após a conduta.",
-  "guidance": "Orientações fornecidas à paciente."
-}
-```
+O corpo JSON segue o DTO `CreateClinicalEvolutionRequest`. Campos de seleção múltipla são arrays de strings; campos não preenchidos são enviados como string vazia ou array vazio.
 
 Retorna `201 Created` com a evolução criada. Retorne `409 Conflict` se o agendamento não estiver `confirmado` e `404` se ele não existir.
 
@@ -181,20 +173,30 @@ public sealed class ClinicalEvolution
 {
     public Guid Id { get; set; }
     public Guid AppointmentId { get; set; }
-    public required string Complaint { get; set; }
-    public required string Assessment { get; set; }
-    public required string Conduct { get; set; }
-    public required string Response { get; set; }
-    public required string Guidance { get; set; }
+    public required ClinicalEvolutionData Data { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
-public sealed record CreateClinicalEvolutionRequest(
-    string Complaint,
-    string Assessment,
-    string Conduct,
-    string Response,
-    string Guidance);
+public sealed record CreateClinicalEvolutionRequest(ClinicalEvolutionData Data);
+
+// Configure como owned/complex type no EF Core, ou mapeie cada propriedade para coluna.
+public sealed record ClinicalEvolutionData(
+    string Address, string Sex, string Neighborhood, string City, string State,
+    string BirthDate, string Nationality, string MaritalStatus, string Education,
+    string Profession, string Responsible, string Specialty, string AdmissionDate,
+    string ChiefComplaint, string CurrentHistory, string PreviousHistory,
+    string FamilyHistory, string SkinCancer, string[] Habits, string OtherHabits,
+    string Medications, string Cosmetics, string Botox, string Sunscreen,
+    string Allergies, string Diet, string MenstrualStatus, string MenarcheAge,
+    string PreviousFacialTreatment, string SkinColor, string SkinType,
+    string GlogauType, string FitzpatrickType, string[] HairLocations,
+    string AcneGrade, string[] SkinAlterations, string SkinLaxity,
+    string SkinLaxityLocation, string Wrinkles, string[] WrinkleLocations,
+    string WrinkleType, string TsujiClassification, string LapierePierardGrade,
+    string[] DentalAssessment, string Touch, string MuscleTone, string Hydration,
+    string[] WoodLamp, string FacialMeasurements, string[] PostoperativeFindings,
+    string Pain, string Sensitivity, string ImageAssessment,
+    string ClinicalDiagnosis, string Objective, string Conduct);
 ```
 
 Configure a enumeração para ser serializada em minúsculas (`pendente`, `confirmado`, `cancelado`) ou mapeie explicitamente para esses três valores nos DTOs.
@@ -211,8 +213,10 @@ Configure a enumeração para ser serializada em minúsculas (`pendente`, `confi
 - O backend é a autoridade final. Sempre revalide a disponibilidade dentro da mesma transação que cria o agendamento.
 - No reagendamento, aplique as mesmas regras de data, horário e concorrência, desconsiderando apenas o próprio agendamento.
 - A evolução clínica só pode ser criada para um agendamento `confirmado`.
-- `complaint`, `response` e `guidance`: obrigatórios, entre 2 e 2.000 caracteres após `Trim()`.
-- `assessment` e `conduct`: obrigatórios, entre 2 e 4.000 caracteres após `Trim()`.
+- Campos obrigatórios: `chiefComplaint`, `clinicalDiagnosis`, `objective` e `conduct`, entre 2 e 4.000 caracteres após `Trim()`.
+- Demais campos textuais são opcionais e aceitam até 2.000 caracteres; cada item de seleção tem até 100 caracteres e cada lista aceita no máximo 30 itens.
+- Valide seleções contra as opções do protocolo: sexo; sim/não; cor e tipo de pele; Glogau; Fitzpatrick; acne; rugas; Tsuji; Lapiere e Pierard; tato; tônus; hidratação; sensibilidade; pilosidade; alterações; localização das rugas; avaliação odontológica; lâmpada de Wood; e achados pós-operatórios.
+- O protocolo contempla identificação, anamnese, exame físico-funcional, pós-operatório, avaliação por imagem, diagnóstico, objetivo e conduta. Mantenha os nomes JSON exatamente em `camelCase`, conforme o DTO acima.
 
 ## 7. Concorrência e índice no banco
 
