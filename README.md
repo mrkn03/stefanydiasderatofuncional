@@ -9,7 +9,7 @@ bun install
 bun run dev
 ```
 
-Sem configuração adicional, a agenda funciona em **modo demonstrativo**: os dados ficam apenas no `localStorage` do navegador e não são enviados para nenhum servidor.
+Sem configuração adicional, a agenda funciona em **modo demonstrativo**: agendamentos, reagendamentos e evoluções clínicas ficam apenas no `localStorage` do navegador e não são enviados para nenhum servidor. O agendamento público solicita exclusivamente uma avaliação dermatofuncional.
 
 ## Conectar à API .NET
 

@@ -7,7 +7,7 @@ Este documento descreve o backend necessário para ativar o agendamento e a áre
 ### Área pública
 
 1. Consultar horários ocupados de uma data.
-2. Enviar uma solicitação de agendamento.
+2. Enviar uma solicitação exclusivamente para `Avaliação dermatofuncional`.
 3. Impedir dois agendamentos ativos no mesmo dia e horário.
 4. Criar toda nova solicitação com status `pendente`.
 
@@ -18,6 +18,8 @@ Este documento descreve o backend necessário para ativar o agendamento e a áre
 3. Encerrar a sessão.
 4. Listar agendamentos em ordem de data e horário.
 5. Alterar o status para `pendente`, `confirmado` ou `cancelado`.
+6. Reagendar uma avaliação para outra data e horário disponíveis.
+7. Registrar e consultar o histórico de evoluções clínicas após a confirmação.
 
 ## 2. Configuração do frontend
 
@@ -38,7 +40,7 @@ Use nomes em `camelCase`, padrão do `System.Text.Json` no ASP.NET Core.
   "id": "d7bbca82-05f1-4d86-97ba-bca8959db81f",
   "patientName": "Maria Silva",
   "phone": "(27) 99999-9999",
-  "procedure": "Limpeza de pele",
+  "procedure": "Avaliação dermatofuncional",
   "date": "2026-10-20",
   "time": "14:00",
   "status": "pendente",
@@ -53,7 +55,7 @@ Datas usam `YYYY-MM-DD`, horários usam `HH:mm` e instantes usam ISO 8601 em UTC
 
 ### `GET /api/appointments/occupied-slots?date=YYYY-MM-DD`
 
-Público. Retorna apenas horários de agendamentos `pendente` ou `confirmado`.
+Público. Retorna apenas horários de agendamentos `pendente` ou `confirmado`. Na consulta administrativa para reagendamento, aceite opcionalmente `excludeId` e desconsidere o próprio agendamento.
 
 ```json
 ["09:00", "14:00"]
@@ -70,7 +72,7 @@ Público. Cria uma solicitação.
 {
   "patientName": "Maria Silva",
   "phone": "(27) 99999-9999",
-  "procedure": "Limpeza de pele",
+  "procedure": "Avaliação dermatofuncional",
   "date": "2026-10-20",
   "time": "14:00",
   "notes": "Primeira avaliação"
@@ -115,6 +117,28 @@ Protegido pela política `Admin`.
 
 Retorna `204 No Content`, `400` para status inválido ou `404` para identificador inexistente.
 
+### `PATCH /api/admin/appointments/{id}/schedule`
+
+Protegido pela política `Admin`. Reagenda uma avaliação:
+
+```json
+{ "date": "2026-10-22", "time": "15:00" }
+```
+
+Retorna `204 No Content`. Retorne `409 Conflict` quando o novo horário estiver ocupado. A verificação e a atualização devem ocorrer na mesma transação e respeitar o índice único de horários ativos.
+
+### `GET /api/admin/appointments/{id}/evolutions`
+
+Protegido pela política `Admin`. Retorna o histórico clínico em ordem decrescente de criação. Cada item contém `id`, `appointmentId`, todos os campos do protocolo descritos abaixo e `createdAt`.
+
+### `POST /api/admin/appointments/{id}/evolutions`
+
+Protegido pela política `Admin`. Aceita múltiplas evoluções por agendamento confirmado:
+
+O corpo JSON segue diretamente o DTO `ClinicalEvolutionData`. Campos de seleção múltipla são arrays de strings; campos não preenchidos são enviados como string vazia ou array vazio.
+
+Retorna `201 Created` com a evolução criada. Retorne `409 Conflict` se o agendamento não estiver `confirmado` e `404` se ele não existir.
+
 ## 5. Modelos C# sugeridos
 
 ```csharp
@@ -143,6 +167,34 @@ public sealed record CreateAppointmentRequest(
 
 public sealed record LoginRequest(string Email, string Password);
 public sealed record UpdateAppointmentStatusRequest(string Status);
+public sealed record RescheduleAppointmentRequest(DateOnly Date, TimeOnly Time);
+
+public sealed class ClinicalEvolution
+{
+    public Guid Id { get; set; }
+    public Guid AppointmentId { get; set; }
+    public required ClinicalEvolutionData Data { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}
+
+// Configure como owned/complex type no EF Core, ou mapeie cada propriedade para coluna.
+public sealed record ClinicalEvolutionData(
+    string Address, string Sex, string Neighborhood, string City, string State,
+    string BirthDate, string Nationality, string MaritalStatus, string Education,
+    string Profession, string Responsible, string Specialty, string AdmissionDate,
+    string ChiefComplaint, string CurrentHistory, string PreviousHistory,
+    string FamilyHistory, string SkinCancer, string[] Habits, string OtherHabits,
+    string Medications, string Cosmetics, string Botox, string Sunscreen,
+    string Allergies, string Diet, string MenstrualStatus, string MenarcheAge,
+    string PreviousFacialTreatment, string SkinColor, string SkinType,
+    string GlogauType, string FitzpatrickType, string[] HairLocations,
+    string AcneGrade, string[] SkinAlterations, string SkinLaxity,
+    string SkinLaxityLocation, string Wrinkles, string[] WrinkleLocations,
+    string WrinkleType, string TsujiClassification, string LapierePierardGrade,
+    string[] DentalAssessment, string Touch, string MuscleTone, string Hydration,
+    string[] WoodLamp, string FacialMeasurements, string[] PostoperativeFindings,
+    string Pain, string Sensitivity, string ImageAssessment,
+    string ClinicalDiagnosis, string Objective, string Conduct);
 ```
 
 Configure a enumeração para ser serializada em minúsculas (`pendente`, `confirmado`, `cancelado`) ou mapeie explicitamente para esses três valores nos DTOs.
@@ -151,12 +203,18 @@ Configure a enumeração para ser serializada em minúsculas (`pendente`, `confi
 
 - `patientName`: obrigatório, entre 2 e 100 caracteres após `Trim()`.
 - `phone`: obrigatório, entre 8 e 20 caracteres; aceitar somente números, espaços, `(`, `)`, `+` e `-`.
-- `procedure`: obrigatório, entre 2 e 100 caracteres. Idealmente valide contra os procedimentos cadastrados no backend.
+- `procedure`: obrigatório e deve ser exatamente `Avaliação dermatofuncional`. Rejeite qualquer outro valor, mesmo que a requisição não venha do frontend oficial.
 - `date`: obrigatória, não pode estar no passado nem no dia atual.
 - `time`: obrigatório e pertencente à grade permitida: `08:00`, `09:00`, `10:00`, `11:00`, `13:00`, `14:00`, `15:00`, `16:00`, `17:00`, `18:00`.
 - `notes`: opcional, até 500 caracteres.
 - Um horário com status `pendente` ou `confirmado` está ocupado. Um horário `cancelado` pode ser reservado novamente.
 - O backend é a autoridade final. Sempre revalide a disponibilidade dentro da mesma transação que cria o agendamento.
+- No reagendamento, aplique as mesmas regras de data, horário e concorrência, desconsiderando apenas o próprio agendamento.
+- A evolução clínica só pode ser criada para um agendamento `confirmado`.
+- Campos obrigatórios: `chiefComplaint`, `clinicalDiagnosis`, `objective` e `conduct`, entre 2 e 4.000 caracteres após `Trim()`.
+- Demais campos textuais são opcionais e aceitam até 2.000 caracteres; cada item de seleção tem até 100 caracteres e cada lista aceita no máximo 30 itens.
+- Valide seleções contra as opções do protocolo: sexo; sim/não; cor e tipo de pele; Glogau; Fitzpatrick; acne; rugas; Tsuji; Lapiere e Pierard; tato; tônus; hidratação; sensibilidade; pilosidade; alterações; localização das rugas; avaliação odontológica; lâmpada de Wood; e achados pós-operatórios.
+- O protocolo contempla identificação, anamnese, exame físico-funcional, pós-operatório, avaliação por imagem, diagnóstico, objetivo e conduta. Mantenha os nomes JSON exatamente em `camelCase`, conforme o DTO acima.
 
 ## 7. Concorrência e índice no banco
 
@@ -172,7 +230,7 @@ No SQL Server, use uma coluna calculada/indicador de ativo com índice único fi
 
 ## 8. Persistência com Entity Framework Core
 
-1. Crie `AppDbContext` e `DbSet<Appointment>`.
+1. Crie `AppDbContext`, `DbSet<Appointment>` e `DbSet<ClinicalEvolution>` com relação de um agendamento para muitas evoluções.
 2. Configure limites de coluna, conversão de `AppointmentStatus` para texto e índice de data/horário.
 3. Gere a migration inicial com `dotnet ef migrations add InitialCreate`.
 4. Aplique com `dotnet ef database update` no desenvolvimento; em produção, use uma etapa controlada de implantação.
@@ -215,7 +273,9 @@ Com cookies e origens diferentes, proteja `POST`/`PATCH` contra CSRF. Uma opçã
 
 - Retorne erros no formato `{ "message": "Texto seguro para exibição" }`.
 - Use `400` para validação, `401` para falta de autenticação, `403` para falta de permissão, `404` para recurso ausente, `409` para conflito e `500` para falha inesperada.
-- Nunca registre senhas. Evite registrar nome, telefone e observações em logs.
+- Nunca registre senhas. Não registre nome, telefone, observações ou conteúdo das evoluções clínicas em logs.
+- Evoluções contêm dados sensíveis de saúde: restrinja leitura e escrita à política `Admin`, mantenha trilha de auditoria de acesso e alteração e defina base legal, retenção e descarte conforme a LGPD.
+- Use criptografia em trânsito e a proteção de dados em repouso oferecida pela infraestrutura escolhida. Não envie evoluções para ferramentas de análise ou monitoramento.
 - Aplique limitação de requisições nos endpoints públicos, especialmente criação e login.
 - Use HTTPS em produção.
 - Proteja backups e defina política de retenção/exclusão para dados pessoais, observando a LGPD.
@@ -228,10 +288,11 @@ Com cookies e origens diferentes, proteja `POST`/`PATCH` contra CSRF. Uma opçã
 3. Implementar os dois endpoints públicos e testes de concorrência.
 4. Configurar Identity, criar a conta profissional e a política `Admin`.
 5. Implementar sessão, login e logout.
-6. Implementar os dois endpoints administrativos.
-7. Configurar CORS, cookie, CSRF, HTTPS e limitação de requisições.
-8. Executar testes de integração usando um banco real de teste.
-9. Publicar a API e configurar `VITE_API_BASE_URL` no frontend.
+6. Implementar status, reagendamento e consulta administrativa de horários.
+7. Implementar a entidade e os endpoints protegidos de evolução clínica com auditoria.
+8. Configurar CORS, cookie, CSRF, HTTPS e limitação de requisições.
+9. Executar testes de integração usando um banco real de teste.
+10. Publicar a API e configurar `VITE_API_BASE_URL` no frontend.
 
 ## 13. Cenários mínimos de teste
 
@@ -245,3 +306,8 @@ Com cookies e origens diferentes, proteja `POST`/`PATCH` contra CSRF. Uma opçã
 - Login inválido retorna `401` sem revelar se o e-mail existe.
 - Logout invalida a sessão.
 - CORS aceita apenas as origens configuradas.
+- Procedimento diferente de `Avaliação dermatofuncional` retorna `400`.
+- Reagendamento para horário ocupado retorna `409`; horário livre atualiza data e hora.
+- Evolução antes da confirmação retorna `409`.
+- Usuário sem política `Admin` não lê nem cria evoluções.
+- Uma avaliação confirmada aceita múltiplas evoluções e as retorna da mais recente para a mais antiga.

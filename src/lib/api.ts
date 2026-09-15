@@ -33,24 +33,73 @@ export type CreateAppointmentInput = Pick<
   "patientName" | "phone" | "date" | "time"
 > & { notes?: string };
 
-export type ClinicalEvolution = {
+export type CreateClinicalEvolutionInput = {
+  address: string;
+  sex: string;
+  neighborhood: string;
+  city: string;
+  state: string;
+  birthDate: string;
+  nationality: string;
+  maritalStatus: string;
+  education: string;
+  profession: string;
+  responsible: string;
+  specialty: string;
+  admissionDate: string;
+  chiefComplaint: string;
+  currentHistory: string;
+  previousHistory: string;
+  familyHistory: string;
+  skinCancer: string;
+  habits: string[];
+  otherHabits: string;
+  medications: string;
+  cosmetics: string;
+  botox: string;
+  sunscreen: string;
+  allergies: string;
+  diet: string;
+  menstrualStatus: string;
+  menarcheAge: string;
+  previousFacialTreatment: string;
+  skinColor: string;
+  skinType: string;
+  glogauType: string;
+  fitzpatrickType: string;
+  hairLocations: string[];
+  acneGrade: string;
+  skinAlterations: string[];
+  skinLaxity: string;
+  skinLaxityLocation: string;
+  wrinkles: string;
+  wrinkleLocations: string[];
+  wrinkleType: string;
+  tsujiClassification: string;
+  lapierePierardGrade: string;
+  dentalAssessment: string[];
+  touch: string;
+  muscleTone: string;
+  hydration: string;
+  woodLamp: string[];
+  facialMeasurements: string;
+  postoperativeFindings: string[];
+  pain: string;
+  sensitivity: string;
+  imageAssessment: string;
+  clinicalDiagnosis: string;
+  objective: string;
+  conduct: string;
+};
+
+export type ClinicalEvolution = CreateClinicalEvolutionInput & {
   id: string;
   appointmentId: string;
-  complaint: string;
-  assessment: string;
-  conduct: string;
-  response: string;
-  guidance: string;
   createdAt: string;
 };
 
-export type CreateClinicalEvolutionInput = Pick<
-  ClinicalEvolution,
-  "complaint" | "assessment" | "conduct" | "response" | "guidance"
->;
-
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const phonePattern = /^[0-9 ()+\-]+$/;
+const phonePattern = /^[0-9 ()+-]+$/;
 const createAppointmentSchema = z.object({
   patientName: z.string().trim().min(2).max(100),
   phone: z.string().trim().min(8).max(20).regex(phonePattern),
@@ -58,12 +107,66 @@ const createAppointmentSchema = z.object({
   time: z.enum(APPOINTMENT_TIMES),
   notes: z.string().trim().max(500).optional(),
 });
+const optionalClinicalText = z.string().trim().max(2000);
+const requiredClinicalText = z.string().trim().min(2).max(4000);
+const clinicalList = z.array(z.string().trim().min(1).max(100)).max(30);
 const evolutionSchema = z.object({
-  complaint: z.string().trim().min(2).max(2000),
-  assessment: z.string().trim().min(2).max(4000),
-  conduct: z.string().trim().min(2).max(4000),
-  response: z.string().trim().min(2).max(2000),
-  guidance: z.string().trim().min(2).max(2000),
+  address: optionalClinicalText,
+  sex: optionalClinicalText,
+  neighborhood: optionalClinicalText,
+  city: optionalClinicalText,
+  state: optionalClinicalText,
+  birthDate: optionalClinicalText,
+  nationality: optionalClinicalText,
+  maritalStatus: optionalClinicalText,
+  education: optionalClinicalText,
+  profession: optionalClinicalText,
+  responsible: optionalClinicalText,
+  specialty: optionalClinicalText,
+  admissionDate: optionalClinicalText,
+  chiefComplaint: requiredClinicalText,
+  currentHistory: optionalClinicalText,
+  previousHistory: optionalClinicalText,
+  familyHistory: optionalClinicalText,
+  skinCancer: optionalClinicalText,
+  habits: clinicalList,
+  otherHabits: optionalClinicalText,
+  medications: optionalClinicalText,
+  cosmetics: optionalClinicalText,
+  botox: optionalClinicalText,
+  sunscreen: optionalClinicalText,
+  allergies: optionalClinicalText,
+  diet: optionalClinicalText,
+  menstrualStatus: optionalClinicalText,
+  menarcheAge: optionalClinicalText,
+  previousFacialTreatment: optionalClinicalText,
+  skinColor: optionalClinicalText,
+  skinType: optionalClinicalText,
+  glogauType: optionalClinicalText,
+  fitzpatrickType: optionalClinicalText,
+  hairLocations: clinicalList,
+  acneGrade: optionalClinicalText,
+  skinAlterations: clinicalList,
+  skinLaxity: optionalClinicalText,
+  skinLaxityLocation: optionalClinicalText,
+  wrinkles: optionalClinicalText,
+  wrinkleLocations: clinicalList,
+  wrinkleType: optionalClinicalText,
+  tsujiClassification: optionalClinicalText,
+  lapierePierardGrade: optionalClinicalText,
+  dentalAssessment: clinicalList,
+  touch: optionalClinicalText,
+  muscleTone: optionalClinicalText,
+  hydration: optionalClinicalText,
+  woodLamp: clinicalList,
+  facialMeasurements: optionalClinicalText,
+  postoperativeFindings: clinicalList,
+  pain: optionalClinicalText,
+  sensitivity: optionalClinicalText,
+  imageAssessment: optionalClinicalText,
+  clinicalDiagnosis: requiredClinicalText,
+  objective: requiredClinicalText,
+  conduct: requiredClinicalText,
 });
 
 const apiBaseUrl =
@@ -225,10 +328,12 @@ export async function updateAppointmentStatus(
 }
 
 export async function rescheduleAppointment(id: string, date: string, time: string): Promise<void> {
-  const parsed = z.object({ date: z.string().regex(datePattern), time: z.enum(APPOINTMENT_TIMES) }).safeParse({
-    date,
-    time,
-  });
+  const parsed = z
+    .object({ date: z.string().regex(datePattern), time: z.enum(APPOINTMENT_TIMES) })
+    .safeParse({
+      date,
+      time,
+    });
   if (!parsed.success) throw new ApiError("Escolha uma data e um horário válidos.", 400);
   if (!isDemoMode) {
     await request<void>(`/api/admin/appointments/${encodeURIComponent(id)}/schedule`, {
