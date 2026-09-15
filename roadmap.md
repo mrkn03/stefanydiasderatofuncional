@@ -8,6 +8,8 @@
 - [x] Página /agendamento preparada para consumir uma API .NET
 - [x] Área /admin preparada para autenticação e gestão por uma API .NET
 - [x] Documentar o contrato e os passos de implementação do backend em ASP.NET Core
+- [x] Restringir novos agendamentos à avaliação dermatofuncional
+- [x] Adicionar confirmação, reagendamento, cancelamento e evolução clínica na agenda
 - [x] Metadados SEO por rota (pt-BR)
 
 ## Aguardando dados reais
