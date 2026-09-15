@@ -50,7 +50,7 @@ export type CreateClinicalEvolutionInput = Pick<
 >;
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const phonePattern = /^[0-9 ()+\-]+$/;
+const phonePattern = /^[0-9 ()+-]+$/;
 const createAppointmentSchema = z.object({
   patientName: z.string().trim().min(2).max(100),
   phone: z.string().trim().min(8).max(20).regex(phonePattern),
