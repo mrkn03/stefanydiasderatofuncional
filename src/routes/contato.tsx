@@ -33,6 +33,9 @@ const contacts: Contact[] = [
   ],
   [MessageCircle, "WhatsApp", "Atendimento por mensagem", null],
 ];
+
+const phoneNumber = "5527988333769";
+
 function Contact() {
   return (
     <PageLayout
@@ -78,7 +81,7 @@ function Contact() {
           </Button>
           <Button asChild variant="outline" className="rounded-full border-rose/50">
             <a
-              href={`https://wa.me/?text=${encodeURIComponent("Olá, Dra. Stefany! Gostaria de agendar uma avaliação.")}`}
+              href={`https://wa.me/send?phone=${encodeURIComponent(phoneNumber)}&text=${encodeURIComponent("Olá, Dra. Stefany! Gostaria de agendar uma avaliação.")}`}
               target="_blank"
               rel="noopener noreferrer"
             >

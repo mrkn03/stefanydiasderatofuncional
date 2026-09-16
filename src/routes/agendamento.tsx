@@ -35,6 +35,7 @@ export const Route = createFileRoute("/agendamento")({
   component: Booking,
 });
 function Booking() {
+  const phoneNumber = "5527988333769";
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [occupied, setOccupied] = useState<string[]>([]);
@@ -197,7 +198,7 @@ function Booking() {
             {loading ? "Enviando..." : "Solicitar agendamento"}
           </Button>
           <a
-            href={`https://wa.me/?text=${encodeURIComponent("Olá, Dra. Stefany! Gostaria de agendar uma avaliação.")}`}
+            href={`https://wa.me/send?phone=${encodeURIComponent(phoneNumber)}&text=${encodeURIComponent("Olá, Dra. Stefany! Gostaria de agendar uma avaliação.")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 text-sm font-medium text-rosedeep"
