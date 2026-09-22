@@ -50,18 +50,154 @@ export type Database = {
         }
         Relationships: []
       }
+      clinical_evolutions: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          created_by: string
+          data: Json
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          created_by?: string
+          data: Json
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          created_by?: string
+          data?: Json
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinical_evolutions_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_outbound_messages: {
+        Row: {
+          accepted_at: string | null
+          appointment_id: string | null
+          created_at: string
+          delivered_at: string | null
+          error: Json | null
+          failed_at: string | null
+          id: string
+          provider_message_id: string | null
+          read_at: string | null
+          recipient: string
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          error?: Json | null
+          failed_at?: string | null
+          id?: string
+          provider_message_id?: string | null
+          read_at?: string | null
+          recipient: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          appointment_id?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          error?: Json | null
+          failed_at?: string | null
+          id?: string
+          provider_message_id?: string | null
+          read_at?: string | null
+          recipient?: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_outbound_messages_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_webhook_events: {
+        Row: {
+          attempts: number
+          delivery_id: string
+          event: string
+          id: string
+          next_attempt_at: string
+          payload: Json
+          processed_at: string | null
+          processing_error: string | null
+          received_at: string
+        }
+        Insert: {
+          attempts?: number
+          delivery_id: string
+          event: string
+          id?: string
+          next_attempt_at?: string
+          payload: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+        }
+        Update: {
+          attempts?: number
+          delivery_id?: string
+          event?: string
+          id?: string
+          next_attempt_at?: string
+          payload?: Json
+          processed_at?: string | null
+          processing_error?: string | null
+          received_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      get_occupied_slots: {
-        Args: { p_date: string }
-        Returns: {
-          date: string
-          time: string
-        }[]
-      }
+      apply_whatsapp_statuses: { Args: { p_limit?: number }; Returns: number }
+      get_occupied_slots:
+        | {
+            Args: { p_date: string }
+            Returns: {
+              date: string
+              time: string
+            }[]
+          }
+        | {
+            Args: { p_date: string; p_exclude_id?: string }
+            Returns: {
+              date: string
+              time: string
+            }[]
+          }
     }
     Enums: {
       [_ in never]: never
