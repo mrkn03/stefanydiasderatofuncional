@@ -1,6 +1,6 @@
 # Site Dra. Stefany Dias
 
-Frontend institucional e de agendamento desenvolvido com React, TanStack Start, TypeScript e Tailwind CSS.
+Site institucional e sistema de agendamento desenvolvido com React, TanStack Start, TypeScript, Tailwind CSS e Lovable Cloud.
 
 ## Executar localmente
 
@@ -9,19 +9,13 @@ bun install
 bun run dev
 ```
 
-Sem configuração adicional, a agenda funciona em **modo demonstrativo**: agendamentos, reagendamentos e evoluções clínicas ficam apenas no `localStorage` do navegador e não são enviados para nenhum servidor. O agendamento público solicita exclusivamente uma avaliação dermatofuncional.
+O agendamento público solicita exclusivamente uma avaliação dermatofuncional. Solicitações, reagendamentos e evoluções clínicas são persistidos no Lovable Cloud, e a agenda profissional exige login.
 
-## Conectar à API .NET
+## WhatsApp Business
 
-Crie um arquivo `.env.local` na sua máquina:
+O sistema registra cada tentativa de aviso e acompanha os retornos de entrega. Para habilitar o envio automático, conecte a conta oficial do WhatsApp Business ao projeto. O agendamento é preservado mesmo quando o aviso não puder ser enviado.
 
-```env
-VITE_API_BASE_URL=https://localhost:7001
-```
-
-Reinicie o frontend. A partir daí, todas as ações da agenda usam a API configurada. Não coloque senhas, chaves privadas ou tokens em variáveis `VITE_*`, pois elas ficam públicas no navegador.
-
-O contrato completo da API, regras de negócio, segurança, banco, exemplos e roteiro de implementação estão em [`docs/BACKEND-DOTNET.md`](docs/BACKEND-DOTNET.md).
+O documento [`docs/BACKEND-DOTNET.md`](docs/BACKEND-DOTNET.md) permanece como referência histórica caso seja necessária uma migração futura para uma API própria.
 
 ## Comandos
 

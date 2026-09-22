@@ -11,7 +11,6 @@ import {
   createAppointment,
   DERMATOFUNCTIONAL_EVALUATION,
   getOccupiedSlots,
-  isDemoMode,
 } from "@/lib/api";
 
 export const Route = createFileRoute("/agendamento")({
@@ -74,19 +73,13 @@ function Booking() {
     return (
       <PageLayout
         eyebrow="Agendamento"
-        title={isDemoMode ? "Demonstração concluída!" : "Solicitação recebida!"}
-        intro={
-          isDemoMode
-            ? "O formulário funcionou em modo demonstrativo. Conecte a API .NET para receber agendamentos reais."
-            : "A Dra. Stefany entrará em contato pelo WhatsApp informado para confirmar o atendimento."
-        }
+        title="Solicitação recebida!"
+        intro="A Dra. Stefany entrará em contato pelo WhatsApp informado para confirmar o atendimento."
       >
         <section className="mx-auto max-w-xl px-5 py-20 text-center">
           <CheckCircle2 className="mx-auto size-14 text-rosedeep" />
           <p className="mt-6 text-inksoft">
-            {isDemoMode
-              ? "Os dados ficaram somente neste navegador e não foram enviados."
-              : "Seu horário foi reservado como pendente até a confirmação."}
+            Seu horário foi reservado como pendente até a confirmação.
           </p>
           <Button asChild variant="outline" className="mt-8 rounded-full border-rose/50">
             <Link to="/">Voltar ao início</Link>
@@ -101,15 +94,6 @@ function Booking() {
       intro="Escolha a data e um dos horários disponíveis. Os procedimentos indicados serão definidos individualmente após a avaliação."
     >
       <section className="mx-auto max-w-2xl px-5 py-20 sm:px-6">
-        {isDemoMode && (
-          <div
-            role="status"
-            className="mb-5 rounded-xl border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft"
-          >
-            <strong className="font-semibold text-ink">Modo demonstrativo:</strong> nenhum
-            agendamento real será enviado até a API .NET ser conectada.
-          </div>
-        )}
         <form
           onSubmit={submit}
           className="edge grid gap-6 rounded-2xl bg-milk p-7 ring-1 ring-rose/30 sm:p-10"

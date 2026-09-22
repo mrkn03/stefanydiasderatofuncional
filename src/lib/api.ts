@@ -1,20 +1,13 @@
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  APPOINTMENT_TIMES,
+  createAppointmentSchema,
+  DERMATOFUNCTIONAL_EVALUATION,
+} from "@/lib/appointment-schema";
 
 export type AppointmentStatus = "pendente" | "confirmado" | "cancelado";
-
-export const DERMATOFUNCTIONAL_EVALUATION = "Avaliação dermatofuncional";
-export const APPOINTMENT_TIMES = [
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-] as const;
+export { APPOINTMENT_TIMES, DERMATOFUNCTIONAL_EVALUATION };
 
 export type Appointment = {
   id: string;
@@ -99,14 +92,6 @@ export type ClinicalEvolution = CreateClinicalEvolutionInput & {
 };
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const phonePattern = /^[0-9 ()+-]+$/;
-const createAppointmentSchema = z.object({
-  patientName: z.string().trim().min(2).max(100),
-  phone: z.string().trim().min(8).max(20).regex(phonePattern),
-  date: z.string().regex(datePattern),
-  time: z.enum(APPOINTMENT_TIMES),
-  notes: z.string().trim().max(500).optional(),
-});
 const optionalClinicalText = z.string().trim().max(2000);
 const requiredClinicalText = z.string().trim().min(2).max(4000);
 const clinicalList = z.array(z.string().trim().min(1).max(100)).max(30);
@@ -169,14 +154,6 @@ const evolutionSchema = z.object({
   conduct: requiredClinicalText,
 });
 
-const apiBaseUrl =
-  (import.meta.env["VITE_API_BASE_URL"] as string | undefined)?.replace(/\/$/, "") ?? "";
-const demoAppointmentsKey = "stefany-demo-appointments";
-const demoSessionKey = "stefany-demo-admin";
-const demoEvolutionsKey = "stefany-demo-evolutions";
-
-export const isDemoMode = !apiBaseUrl;
-
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -187,7 +164,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
+  const response = await fetch(path, {
     ...init,
     credentials: "include",
     headers: { "Content-Type": "application/json", ...init?.headers },
@@ -205,126 +182,62 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function readDemoAppointments(): Appointment[] {
-  if (typeof window === "undefined") return [];
-  const stored = window.localStorage.getItem(demoAppointmentsKey);
-  if (stored) {
-    try {
-      return JSON.parse(stored) as Appointment[];
-    } catch {
-      window.localStorage.removeItem(demoAppointmentsKey);
-    }
-  }
-  return [];
-}
-
-function writeDemoAppointments(appointments: Appointment[]) {
-  window.localStorage.setItem(demoAppointmentsKey, JSON.stringify(appointments));
-}
-
-function readDemoEvolutions(): ClinicalEvolution[] {
-  if (typeof window === "undefined") return [];
-  const stored = window.localStorage.getItem(demoEvolutionsKey);
-  if (!stored) return [];
-  try {
-    return JSON.parse(stored) as ClinicalEvolution[];
-  } catch {
-    window.localStorage.removeItem(demoEvolutionsKey);
-    return [];
-  }
-}
-
-function writeDemoEvolutions(evolutions: ClinicalEvolution[]) {
-  window.localStorage.setItem(demoEvolutionsKey, JSON.stringify(evolutions));
+function mapAppointment(row: {
+  id: string; patient_name: string; phone: string; procedure: string; date: string;
+  time: string; status: string; notes: string | null; created_at: string;
+}): Appointment {
+  return {
+    id: row.id, patientName: row.patient_name, phone: row.phone, procedure: row.procedure,
+    date: row.date, time: row.time, status: row.status as AppointmentStatus,
+    notes: row.notes, createdAt: row.created_at,
+  };
 }
 
 export async function getOccupiedSlots(date: string, excludeId?: string): Promise<string[]> {
-  if (!isDemoMode) {
-    const query = new URLSearchParams({ date });
-    if (excludeId) query.set("excludeId", excludeId);
-    return request<string[]>(`/api/appointments/occupied-slots?${query.toString()}`);
-  }
-  return readDemoAppointments()
-    .filter((item) => item.id !== excludeId && item.date === date && item.status !== "cancelado")
-    .map((item) => item.time);
+  const { data, error } = await supabase.rpc("get_occupied_slots", {
+    p_date: date,
+    ...(excludeId ? { p_exclude_id: excludeId } : {}),
+  });
+  if (error) throw new ApiError("Não foi possível consultar os horários.", 500);
+  return data.map((item) => item.time.slice(0, 5));
 }
 
 export async function createAppointment(input: CreateAppointmentInput): Promise<Appointment> {
   const parsed = createAppointmentSchema.safeParse(input);
   if (!parsed.success) throw new ApiError("Revise os dados informados para o agendamento.", 400);
-  const payload = { ...parsed.data, procedure: DERMATOFUNCTIONAL_EVALUATION };
-  if (!isDemoMode) {
-    return request<Appointment>("/api/appointments", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-  }
-  const appointments = readDemoAppointments();
-  const unavailable = appointments.some(
-    (item) =>
-      item.date === payload.date && item.time === payload.time && item.status !== "cancelado",
-  );
-  if (unavailable) throw new ApiError("Este horário acabou de ser reservado. Escolha outro.", 409);
-  const appointment: Appointment = {
-    ...payload,
-    id: crypto.randomUUID(),
-    notes: payload.notes?.trim() || null,
-    status: "pendente",
-    createdAt: new Date().toISOString(),
-  };
-  writeDemoAppointments([...appointments, appointment]);
-  return appointment;
+  return request<Appointment>("/api/appointments", {
+    method: "POST",
+    body: JSON.stringify(parsed.data),
+  });
 }
 
 export async function login(email: string, password: string): Promise<void> {
-  if (!isDemoMode) {
-    await request<void>("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-    return;
-  }
   if (!email || !password) throw new ApiError("Informe e-mail e senha.", 400);
-  window.sessionStorage.setItem(demoSessionKey, "true");
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw new ApiError("E-mail ou senha incorretos.", 401);
 }
 
 export async function logout(): Promise<void> {
-  if (!isDemoMode) await request<void>("/api/auth/logout", { method: "POST" });
-  else window.sessionStorage.removeItem(demoSessionKey);
-}
-
-export async function hasAdminSession(): Promise<boolean> {
-  if (isDemoMode) return window.sessionStorage.getItem(demoSessionKey) === "true";
-  try {
-    await request<{ authenticated: true }>("/api/auth/session");
-    return true;
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) return false;
-    throw error;
-  }
+  const { error } = await supabase.auth.signOut();
+  if (error) throw new ApiError("Não foi possível sair.", 500);
 }
 
 export async function listAppointments(): Promise<Appointment[]> {
-  if (!isDemoMode) return request<Appointment[]>("/api/admin/appointments");
-  return readDemoAppointments().sort((a, b) =>
-    `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`),
-  );
+  const { data, error } = await supabase
+    .from("appointments")
+    .select("*")
+    .order("date")
+    .order("time");
+  if (error) throw new ApiError("Não foi possível carregar a agenda.", 500);
+  return data.map(mapAppointment);
 }
 
 export async function updateAppointmentStatus(
   id: string,
   status: AppointmentStatus,
 ): Promise<void> {
-  if (!isDemoMode) {
-    await request<void>(`/api/admin/appointments/${encodeURIComponent(id)}/status`, {
-      method: "PATCH",
-      body: JSON.stringify({ status }),
-    });
-    return;
-  }
-  writeDemoAppointments(
-    readDemoAppointments().map((item) => (item.id === id ? { ...item, status } : item)),
-  );
+  const { error } = await supabase.from("appointments").update({ status }).eq("id", id);
+  if (error) throw new ApiError("Não foi possível atualizar o agendamento.", 500);
 }
 
 export async function rescheduleAppointment(id: string, date: string, time: string): Promise<void> {
@@ -335,36 +248,24 @@ export async function rescheduleAppointment(id: string, date: string, time: stri
       time,
     });
   if (!parsed.success) throw new ApiError("Escolha uma data e um horário válidos.", 400);
-  if (!isDemoMode) {
-    await request<void>(`/api/admin/appointments/${encodeURIComponent(id)}/schedule`, {
-      method: "PATCH",
-      body: JSON.stringify(parsed.data),
-    });
-    return;
-  }
-  const appointments = readDemoAppointments();
-  const unavailable = appointments.some(
-    (item) =>
-      item.id !== id &&
-      item.date === parsed.data.date &&
-      item.time === parsed.data.time &&
-      item.status !== "cancelado",
-  );
-  if (unavailable) throw new ApiError("Este horário acabou de ser reservado. Escolha outro.", 409);
-  writeDemoAppointments(
-    appointments.map((item) => (item.id === id ? { ...item, ...parsed.data } : item)),
-  );
+  const { error } = await supabase.from("appointments").update(parsed.data).eq("id", id);
+  if (error?.code === "23505") throw new ApiError("Este horário acabou de ser reservado. Escolha outro.", 409);
+  if (error) throw new ApiError("Não foi possível reagendar.", 500);
 }
 
 export async function listClinicalEvolutions(appointmentId: string): Promise<ClinicalEvolution[]> {
-  if (!isDemoMode) {
-    return request<ClinicalEvolution[]>(
-      `/api/admin/appointments/${encodeURIComponent(appointmentId)}/evolutions`,
-    );
-  }
-  return readDemoEvolutions()
-    .filter((item) => item.appointmentId === appointmentId)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const { data, error } = await supabase
+    .from("clinical_evolutions")
+    .select("id, appointment_id, data, created_at")
+    .eq("appointment_id", appointmentId)
+    .order("created_at", { ascending: false });
+  if (error) throw new ApiError("Não foi possível carregar o histórico clínico.", 500);
+  return data.map((row) => ({
+    ...(row.data as unknown as CreateClinicalEvolutionInput),
+    id: row.id,
+    appointmentId: row.appointment_id,
+    createdAt: row.created_at,
+  }));
 }
 
 export async function createClinicalEvolution(
@@ -373,23 +274,19 @@ export async function createClinicalEvolution(
 ): Promise<ClinicalEvolution> {
   const parsed = evolutionSchema.safeParse(input);
   if (!parsed.success) throw new ApiError("Preencha todos os campos da evolução clínica.", 400);
-  if (!isDemoMode) {
-    return request<ClinicalEvolution>(
-      `/api/admin/appointments/${encodeURIComponent(appointmentId)}/evolutions`,
-      { method: "POST", body: JSON.stringify(parsed.data) },
-    );
-  }
-  const appointment = readDemoAppointments().find((item) => item.id === appointmentId);
-  if (!appointment) throw new ApiError("Agendamento não encontrado.", 404);
-  if (appointment.status !== "confirmado") {
+  const { data, error } = await supabase
+    .from("clinical_evolutions")
+    .insert({ appointment_id: appointmentId, data: parsed.data })
+    .select("id, appointment_id, data, created_at")
+    .single();
+  if (error?.code === "23514") {
     throw new ApiError("Confirme o agendamento antes de evoluir o paciente.", 409);
   }
-  const evolution: ClinicalEvolution = {
-    ...parsed.data,
-    id: crypto.randomUUID(),
-    appointmentId,
-    createdAt: new Date().toISOString(),
+  if (error) throw new ApiError("Não foi possível salvar a evolução.", 500);
+  return {
+    ...(data.data as unknown as CreateClinicalEvolutionInput),
+    id: data.id,
+    appointmentId: data.appointment_id,
+    createdAt: data.created_at,
   };
-  writeDemoEvolutions([...readDemoEvolutions(), evolution]);
-  return evolution;
 }
