@@ -183,21 +183,13 @@ export type Database = {
     }
     Functions: {
       apply_whatsapp_statuses: { Args: { p_limit?: number }; Returns: number }
-      get_occupied_slots:
-        | {
-            Args: { p_date: string }
-            Returns: {
-              date: string
-              time: string
-            }[]
-          }
-        | {
-            Args: { p_date: string; p_exclude_id?: string }
-            Returns: {
-              date: string
-              time: string
-            }[]
-          }
+      get_occupied_slots: {
+        Args: { p_date: string; p_exclude_id?: string }
+        Returns: {
+          date: string
+          time: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
