@@ -9,7 +9,6 @@ import { SiteHeader } from "@/components/site-header";
 import { login } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
-  ssr: false,
   head: () => ({
     meta: [
       { title: "Acesso profissional | Dra. Stefany Dias" },

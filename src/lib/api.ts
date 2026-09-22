@@ -92,7 +92,6 @@ export type ClinicalEvolution = CreateClinicalEvolutionInput & {
 };
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const phonePattern = /^[0-9 ()+-]+$/;
 const optionalClinicalText = z.string().trim().max(2000);
 const requiredClinicalText = z.string().trim().min(2).max(4000);
 const clinicalList = z.array(z.string().trim().min(1).max(100)).max(30);
@@ -154,8 +153,6 @@ const evolutionSchema = z.object({
   objective: requiredClinicalText,
   conduct: requiredClinicalText,
 });
-
-export const isDemoMode = false;
 
 export class ApiError extends Error {
   constructor(
@@ -223,11 +220,6 @@ export async function login(email: string, password: string): Promise<void> {
 export async function logout(): Promise<void> {
   const { error } = await supabase.auth.signOut();
   if (error) throw new ApiError("Não foi possível sair.", 500);
-}
-
-export async function hasAdminSession(): Promise<boolean> {
-  const { data, error } = await supabase.auth.getUser();
-  return !error && Boolean(data.user);
 }
 
 export async function listAppointments(): Promise<Appointment[]> {
