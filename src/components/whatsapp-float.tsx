@@ -1,12 +1,13 @@
 import { MessageCircle } from "lucide-react";
 
 export function WhatsAppFloat() {
+  const phoneNumber = "5527988333769";
   const message = encodeURIComponent(
     "Olá, Dra. Stefany! Gostaria de saber mais sobre os procedimentos.",
   );
   return (
     <a
-      href={`https://wa.me/?text=${message}`}
+      href={`https://wa.me/${phoneNumber}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Falar pelo WhatsApp"
