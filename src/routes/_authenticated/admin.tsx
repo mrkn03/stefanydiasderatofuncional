@@ -22,7 +22,6 @@ import {
   APPOINTMENT_TIMES,
   createClinicalEvolution,
   getOccupiedSlots,
-  isDemoMode,
   listAppointments,
   listClinicalEvolutions,
   logout,
@@ -171,15 +170,6 @@ function Admin() {
         </Button>
       </header>
       <main className="mx-auto mt-10 max-w-6xl">
-        {isDemoMode && (
-          <div
-            role="status"
-            className="mb-5 rounded-lg border border-rose/40 bg-mist px-5 py-4 text-sm text-inksoft"
-          >
-            <strong className="font-semibold text-ink">Agenda demonstrativa:</strong> os registros e
-            as evoluções existem somente neste navegador.
-          </div>
-        )}
         {loading ? (
           <p className="text-sm text-inksoft">Carregando agenda...</p>
         ) : items.length === 0 ? (

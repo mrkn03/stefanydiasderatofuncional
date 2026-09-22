@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SiteHeader } from "@/components/site-header";
-import { isDemoMode, login } from "@/lib/api";
+import { login } from "@/lib/api";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -48,15 +48,6 @@ function Auth() {
           <p className="mt-3 text-sm text-inksoft">
             Entre para gerenciar os agendamentos recebidos.
           </p>
-          {isDemoMode && (
-            <div
-              role="status"
-              className="mt-6 rounded-xl border border-rose/40 bg-mist px-4 py-3 text-xs leading-relaxed text-inksoft"
-            >
-              Modo demonstrativo: qualquer e-mail e senha preenchidos liberam uma prévia local da
-              agenda.
-            </div>
-          )}
           <div className="mt-8">
             <Label htmlFor="email">E-mail</Label>
             <Input id="email" name="email" type="email" required className="mt-2" />

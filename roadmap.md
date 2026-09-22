@@ -12,10 +12,12 @@
 - [x] Adicionar confirmação, reagendamento, cancelamento e evolução clínica na agenda
 - [x] Adaptar a evolução clínica ao protocolo de avaliação facial enviado nas quatro imagens
 - [x] Metadados SEO por rota (pt-BR)
+- [x] Ativar banco real, login profissional e persistência do prontuário
+- [x] Preparar envio e acompanhamento de avisos pelo WhatsApp Business
 
 ## Aguardando dados reais
 
-- [ ] Substituir o link genérico pelo número oficial do WhatsApp
+- [x] Substituir o link genérico pelo número oficial do WhatsApp
 - [ ] Adicionar o perfil oficial do Instagram
-- [ ] Configurar `VITE_API_BASE_URL` quando a API .NET estiver disponível
-- [ ] Criar o primeiro acesso profissional no backend .NET
+- [ ] Conectar a conta oficial do WhatsApp Business (conexão recusada nesta etapa)
+- [ ] Criar o primeiro acesso profissional no Lovable Cloud
