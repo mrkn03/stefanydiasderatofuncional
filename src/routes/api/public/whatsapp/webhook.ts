@@ -1,5 +1,6 @@
 import { verifyWebhookRequest } from "@lovable.dev/webhooks-js";
 import { createFileRoute } from "@tanstack/react-router";
+import type { Json } from "@/integrations/supabase/types";
 
 export const Route = createFileRoute("/api/public/whatsapp/webhook")({
   server: {
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook")({
         const { data: stored, error } = await supabaseAdmin
           .from("whatsapp_webhook_events")
           .upsert(
-            { delivery_id: deliveryId, event, payload: verified.payload },
+            { delivery_id: deliveryId, event, payload: verified.payload as Json },
             { onConflict: "delivery_id", ignoreDuplicates: true },
           )
           .select("id, processed_at")
